@@ -85,6 +85,50 @@ router.post('/:id/comments', (req, res) => {
             })
 })
 
+router.delete('/:id', (req, res) => {
+    Posts.remove(req.params.id)
+        .then((post) => {
+            post
+                ? res.status(200).json(post)
+                : res.status(404).json({
+                    message: "The post with the specified ID does not exist."
+                })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                error: "The post could not be removed"
+            })
+        })
+})
+
+router.put('/:id', (req, res) => {
+    const postUpdate = req.body
+    const postId = req.params.id
+    Posts.findById(postId)
+        .then(() => {
+            !postUpdate.title || !postUpdate.contents
+                ? res.status(400).json({
+                    message: "The post with the specified ID does not exist."
+                })
+                : Posts.update(postId, postUpdate)
+                    .then(() => {
+                        res.status(200).json(postUpdate);
+                    })
+                    .catch((err) => {
+                        res.status(404).json({
+                            message: "The post with the specified ID does not exist.",
+                            err
+                        })
+                    })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                error: "The post information could not be modified.",
+                err
+            })
+        })
+})
+
 
 
 module.exports = router;
